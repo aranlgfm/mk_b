@@ -23,6 +23,57 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors());
 
+
+const passport = require('passport');
+var GoogleStrategy = require( 'passport-google-oauth20' ).Strategy
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+    done(null, obj);
+});
+
+passport.use(new GoogleStrategy({
+        clientID: '238834787845-c6cie097d1fbum8ivsdbt2puh1b4jal6.apps.googleusercontent.com',
+        clientSecret: 'qtc2LsyhPgxJIgwUVRkSFeSv',
+		callbackURL: 'http://localhost:3500/auth/google/callback'
+    }, function(accessToken, refreshToken, profile, done) {
+        process.nextTick(function() {
+			user = profile;
+			console.log(profile+'<<<<<>>>>>>>'+user);
+			
+			// const INSERT_USER = `INSERT INTO user(user_id, user_password, user_status) VALUES('${userId}', '${userPw}', '${userTy}')`;
+			// dbConn.query(INSERT_USER, (err, results) => {
+			// 	if (err) {
+			// 		return res.redirect(err);
+			// 	} else {
+			// 		return res.redirect('/');
+			// 	}
+			// });
+            return done(null, user);
+        });
+    }
+));
+
+
+app.get('/auth/google', passport.authenticate('google', { scope:
+    ['profile']}));
+
+app.get('/auth/google/callback', passport.authenticate( 'google', { failureRedirect: '/login' }),
+    function(req, res) {
+            res.redirect('/'); 
+});
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+passport.deserializeUser(function(obj, done) {
+    done(null, obj);
+});
+
+
 app.get('/', (req, res) => {
 	res.send('nothing');
 	// res.sendfile('main.html');
